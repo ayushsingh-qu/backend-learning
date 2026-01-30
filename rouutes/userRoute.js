@@ -1,6 +1,7 @@
 import express from 'express'
 import { user } from '../models/userSchema.js';
 import { userAuth } from '../middelware/userAuth.js';
+import bcrypt from 'bcrypt'
 
 const userRoute = express.Router();
 
@@ -28,7 +29,9 @@ userRoute.delete('/', userAuth,async (req,res)=>{
 //user ke data ko update karna
 userRoute.patch('/', async(req,res)=>{
   try{
-    const {_id , ...update} = req.body;
+    req.body.password = await bcrypt.hash(req.body.password,10)
+    const {_id ,...update} = req.body;
+    
     await user.findByIdAndUpdate(_id,update,{"runValidators":true});  ///ye 3rd argument data ko update karne se pahe se validation ko run karta hai by default ye false rahta hai agar isko true nahi karenge to data without validation uppdate ho jayegi
     res.send("Data updated succesfully")
   }catch (err) {

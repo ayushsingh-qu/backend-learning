@@ -18,7 +18,7 @@ if(!token)
  if(!result)
   throw new Error('user is not present in the database')
 
- const isBlocked = client.exists(`token:${token}`)
+ const isBlocked = await client.exists(`token:${token}`)
    if(isBlocked)
      throw new Error("Please Login Your Token is expired")
 

@@ -8,12 +8,15 @@ import { authRoute } from './rouutes/authRoute.js'
 import { adminRoute } from './rouutes/adminRoute.js';
 import { client } from './config/redis.js';
 import mongoose from 'mongoose';
+import { rateLimiter } from './middelware/rateLimiter.js';
 
 
 const app = express()
 
 app.use(express.json());
 app.use(cookieParser());  //cookie ko json me convert karega
+
+app.use(rateLimiter);
 
 app.use('/auth', authRoute)
 app.use('/user', userRoute)

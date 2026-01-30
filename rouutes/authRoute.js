@@ -35,23 +35,25 @@ authRoute.post('/registration',async (req,res)=>{
 authRoute.post('/login',async(req,res)=>{
   try{
     //validate user inputs ,email,userid,and password
-     console.log(req.body)
-    const newUser =await user.findOne({emailid:req.body.emailid}) //ab ham without id login kar sakte hai aur id ko as a cookies send kar denge 
+    const {emailid , password} = req.body
+    const newUser = await user.findOne({emailid}) //ab ham without id login kar sakte hai aur id ko as a cookies send kar denge 
+     if(!newUser)
+      throw new Error('Email or Password is Incorrect')
 
     //user ka varification hoga
-    // if(!(newUser.emailid === req.body.emailid))
-    //   throw new Error('Email or Password is Incorrect')
+    if(!(newUser.emailid === emailid))
+      throw new Error('Email ya Password is Incorrect')
     
-    const isAllowed = await bcrypt.compare(req.body.password,newUser.password)
+    const isAllowed = await bcrypt.compare(password,newUser.password)
     if(!isAllowed)
-      throw new Error("password galat hai bhai")
+      throw new Error("password galat hai bhai") 
     
     //jwt tokens cookies ke form me jayega
     //  const token = jwt.sign({_id:newUser._id,emailid:newUser.emailid},'Lund',{expiresIn:'2d'})
      //  payload aur key hai isme  ,, expires in optional hai aur isko string ke form me '10h' ya '2 days' bhi send kar sakte hai
      const token = newUser.getJWT(); 
-     res.cookie('token',token) 
-
+      res.cookie('token',token) 
+      
      res.status(200).send({
       message: "Login successfully ✅"
     })
