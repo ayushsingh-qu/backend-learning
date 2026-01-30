@@ -3,11 +3,14 @@ import bcrypt from "bcrypt"
 import { user } from "../models/userSchema.js"
 import { validation } from "../validator.js"
 import cookieParser from 'cookie-parser'
+import { client } from "../config/redis.js"
+import jwt from 'jsonwebtoken'
+import { userAuth } from "../middelware/userAuth.js"
 
 
 const authRoute = express.Router()
 
-
+//registration
 authRoute.post('/registration',async (req,res)=>{
   try{
     //api level validation for required field
@@ -28,6 +31,7 @@ authRoute.post('/registration',async (req,res)=>{
   }
 })
 
+//login
 authRoute.post('/login',async(req,res)=>{
   try{
     //validate user inputs ,email,userid,and password
@@ -60,6 +64,26 @@ authRoute.post('/login',async(req,res)=>{
   }
 })
 
+//logout
+//redis ke database me blocked token dalna hoga
+authRoute.post('/logout',userAuth , async (req,res)=>{
+  try{
+    const {token} = req.cookies
+    const payload = jwt.decode(token)
+    console.log(payload);
+    await client.set(`token:${token}`,'blocked')
+    // await client.expire(`token:${token}`,1800)       //ye value second me dete hai(current time se)
+    await client.expireAt(`token:${token}`,payload.exp)
+    res.cookie('token', null , {expires: new Date( Date.now())})   //cookie ko expire kar dega
+    res.send({
+       message: "Logged out successfully ✅"
+    })
 
+  }catch(err){
+    res.send({
+      Error: err.message
+    })
+  }
+})
 
 export {authRoute}

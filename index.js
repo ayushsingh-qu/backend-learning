@@ -1,5 +1,4 @@
 import express from 'express'
-import { main } from './database.js'
 import cookieParser from 'cookie-parser'
 // import dotenv from 'dotenv';
 // dotenv.config();
@@ -7,6 +6,8 @@ import 'dotenv/config';
 import { userRoute } from './rouutes/userRoute.js'
 import { authRoute } from './rouutes/authRoute.js'
 import { adminRoute } from './rouutes/adminRoute.js';
+import { client } from './config/redis.js';
+import mongoose from 'mongoose';
 
 
 const app = express()
@@ -18,15 +19,22 @@ app.use('/auth', authRoute)
 app.use('/user', userRoute)
 app.use('/admin',adminRoute)
 
+const connections = async ()=>{
+  try{
+   await client.connect();
+    console.log("connected to redis database")
 
-main()
-.then( async ()=>{
-  console.log('connectd to the DB')
+   await mongoose.connect(process.env.DB_KEY)
+    console.log("connected to mongoose") 
 
   app.listen(4000,()=>{
-  console.log('port is activated') 
-  })
-})
-.catch((Error)=>console.log(Error))
-  
+      console.log('port is activated') 
+  })  
+  }catch(err){
+    console.log(err +"chud gaye")
+  }}
 
+connections();
+
+  
+ 

@@ -4,7 +4,7 @@ import { userAuth } from '../middelware/userAuth.js';
 
 const userRoute = express.Router();
 
-
+//user ki details send karna
 userRoute.get('/',userAuth,async (req,res)=>{
   try{
      //ab ham direct cookies ke through id ko receive kar sakte hai
@@ -15,7 +15,7 @@ userRoute.get('/',userAuth,async (req,res)=>{
   }
 })
 
-
+//user ko delete karna
 userRoute.delete('/', userAuth,async (req,res)=>{
   try{
     await user.findByIdAndDelete(req._id);
@@ -25,7 +25,7 @@ userRoute.delete('/', userAuth,async (req,res)=>{
   }
 })
 
-
+//user ke data ko update karna
 userRoute.patch('/', async(req,res)=>{
   try{
     const {_id , ...update} = req.body;

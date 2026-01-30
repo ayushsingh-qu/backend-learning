@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { user } from '../models/userSchema.js'
+import { client } from '../config/redis.js'
 
 const userAuth = async (req,res,next)=>{
   try{
@@ -17,10 +18,14 @@ if(!token)
  if(!result)
   throw new Error('user is not present in the database')
 
+ const isBlocked = client.exists(`token:${token}`)
+   if(isBlocked)
+     throw new Error("Please Login Your Token is expired")
+
  req.result= result  //isko ham req.result ke andar daal diye  hai so that aur kahi ye use ho paye
  req._id = _id
  console.log('user Authenticated')
-
+ 
  next();
  
 
